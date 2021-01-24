@@ -43,6 +43,13 @@ const weaponCharacter = {
     Arquero: 'Arco Largo'
 }
 
+const habilityCharacter = {
+    Guerrero: 'Fuerza',
+    Mago: 'Inteligencia',
+    Arquero: 'Agilidad'
+}
+
+
 
 function askName(){
     const name = prompt('Escribe el nombre de tu personaje')
@@ -55,7 +62,7 @@ function askName(){
 
 function askProperties(property){
     let value = Number(prompt(property.message))
-    if(value !== 1 && value !== 2 && value !== 3){
+    if( Number.isNaN(value) || value < 1 || value > 3 ){
         alert('No escogiste una opción valida')
         return askProperties(property)
     }
@@ -72,20 +79,14 @@ function askDescription(){
     return descriptionCharacter
 }
 
-function askHabilities( classCharacter){
+function askHabilities( classCharacter ){
     const pattern = /\d{1}\W{1}\s?\d{1}\W{1}\s?\d$/
-    let hability = ''
+    let hability = habilityCharacter[classCharacter]
     let strength = 0;
     let intelligence = 0;
     let agility = 0;
 
-    if( classCharacter === 'Guerrero' ){
-        hability = 'Fuerza'
-    }else if( classCharacter === 'Mago' ){
-        hability = 'Inteligencia'
-    }else if( classCharacter === 'Arquero' ){
-        hability = 'Agilidad'
-    }
+
     const habilitiesCharacter = prompt(`Tu personaje cuenta con 3 habilidades que son: fuerza, inteligencia y agilidad.
 
     Fuerza:
@@ -116,17 +117,21 @@ function askHabilities( classCharacter){
     }
 
     let total = arrNumHabilities.reduce( (a,b) => a + b, 0)
-    console.log(total);
 
     if(total < 11){
-        console.log('recuerda que debes completar 11 puntos');
         alert('recuerda que debes completar 11 puntos')
         return askHabilities(classCharacter)
     }else if(total > 11){
-        console.log('recuerda que solo tienes 11 puntos');
         alert('recuerda que solo tienes 11 puntos')
         return askHabilities(classCharacter)
     }
+
+    arrNumHabilities.forEach(( num )=>{
+        if(num < 2){
+            alert('no puede haber una propiedad menor a 2')
+            return askHabilities(classCharacter)
+        }
+    })
 
     if(classCharacter === 'Guerrero'){
         if(arrNumHabilities[0] > arrNumHabilities[1] && arrNumHabilities[0] > arrNumHabilities[2]){
@@ -162,43 +167,55 @@ function askHabilities( classCharacter){
 }
 
 function askConfirm(arma){
+    const answer = {
+        empezar: () => alert('Acá va la función que empieza la historia'),
+        nombre: () => {
+            character.name = askName()
+        },
+        clase: () => {
+            character.class = askProperties(classCharacter)
+            askHabilities( character.class)
+        },
+        raza: () => {
+            character.race = askProperties(raceCharacter)
+        },
+        descripcion: () => {
+            character.description = askDescription()
+        },
+        habilidades: () => {
+            askHabilities( character.class)
+        },
+        undefined: () => {
+            alert('Escribe un valor válido para poder continuar')
+        }
+    }
+
     const confirm = prompt(`Este es tu personaje:
+        Nombre = ${character.name}
+        Clase = ${character.class}
+        Raza = ${character.race}
+        ${arma} = ${character.weapon}
+        Habilidades:
+            Fuerza = ${character.habilities.strength}
+            Inteligencia = ${character.habilities.intelligence}
+            Agilidad = ${character.habilities.agility}
+        Descripción = ${character.description}
 
-    Nombre = ${character.name}
-    Clase = ${character.class}
-    Raza = ${character.race}
-    ${arma} = ${character.weapon}
-    Habilidades:
-        Fuerza = ${character.habilities.strength}
-        Inteligencia = ${character.habilities.intelligence}
-        Agilidad = ${character.habilities.agility}
-    Descripción = ${character.description}
+        ¿Estás de acuerdo?
+        Si la respuesta es sí, escribe "empezar" sino, escribe el nombre de la propiedad que deseas cambiar  sin acentos (Ej: Descripcion).
 
-    ¿Estás de acuerdo?
-    Si la respuesta es sí, escribe "empezar" sino, escribe el nombre de la propiedad que deseas cambiar  sin acentos (Ej: Descripcion).
+        Nota: Si quieres cambiar una habilidad en específico escribe "Habilidades" y las re-asignas de nuevo.
+        Nota: El ${arma} es acorde a la clase que escojas.
+    `).toLocaleLowerCase()
 
-    Nota: Si quieres cambiar una habilidad en específico escribe "Habilidades" y las re-asignas de nuevo.
-    Nota: El ${arma} es acorde a la clase que escojas.
-     `).toLocaleLowerCase()
+        const callback = Object.keys(answer).find(key => key === confirm)
 
-     if(confirm === "empezar"){
-        return alert('Acá va la función que empieza la historia');
-    }else if(confirm === "nombre"){
-        return (character.name = askName(), confirm = askConfirm(arma))
-    }else if(confirm === "clase"){
-        return (character.class = askProperties(raceCharacter), confirm = askConfirm(arma))
-    }else if(confirm === 'raza'){
-        return (character.race = askProperties(classCharacter), confirm = askConfirm(arma))
-    }else if(confirm === 'descripcion'){
-        return (character.description = askDescription(), confirm = askConfirm(arma))
-    }else if(confirm === 'habilidades'){
-        return (askHabilities( character.class), confirm = askConfirm(arma))
-    }else{
-        return (alert('Escribe un valor válido para poder continuar'), confirm = askConfirm(arma))
-    }
-    }
+    answer[callback]()
 
-    function crearPersonaje(){
+    if(callback !== 'empezar') askConfirm(arma)
+}
+
+function crearPersonaje(){
     character.name = askName()
     character.race = askProperties(raceCharacter)
     character.class = askProperties(classCharacter)
@@ -206,18 +223,9 @@ function askConfirm(arma){
     character.description = askDescription()
     askHabilities( character.class)
 
-    let arma = ''
-    if(character.race !== 'Mago'){
-        arma = 'Arma'
-    }else{
-        arma = 'Poders'
-    }
+    const arma = character.race === 'Mago' ? 'Poder' : 'Arma'
 
-    const confirm = askConfirm(arma)
-
-
-
-
+    askConfirm(arma)
 }
 
 crearPersonaje()
