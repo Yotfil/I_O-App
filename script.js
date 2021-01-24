@@ -37,6 +37,11 @@ const classCharacter = {
     (3) Arquero:
             Se caracterizan por el uso de la agilidad para dar en el blanco con mortiferas armas a distancia`
 }
+const weaponCharacter = {
+    Mago: 'Bola de Fuego',
+    Guerrero: 'Espada Larga',
+    Arquero: 'Arco Largo'
+}
 
 
 function askName(){
@@ -58,18 +63,6 @@ function askProperties(property){
 }
 
 
-function askWeapon(race){
-    let weaponCharacter = ''
-    if(race === 'Mago'){
-        weaponCharacter = 'Bola de fuego'
-    }else if(race === 'Guerrero'){
-        weaponCharacter = 'Espada'
-    }else if(race === 'Arquero'){
-        weaponCharacter = 'Arco'
-    }
-    return weaponCharacter
-}
-
 function askDescription(){
     const descriptionCharacter = prompt('Describe tu personaje (color de cabello, ojos, piel ¿Tiene marcas en la piel? ¿Tiene alguna manía o vicio?')
     if(!descriptionCharacter){
@@ -79,13 +72,18 @@ function askDescription(){
     return descriptionCharacter
 }
 
-function askHabilities(habilities, clase){
+function askHabilities( classCharacter){
+    const pattern = /\d{1}\W{1}\s?\d{1}\W{1}\s?\d$/
     let hability = ''
-    if( clase === 'Guerrero' ){
+    let strength = 0;
+    let intelligence = 0;
+    let agility = 0;
+
+    if( classCharacter === 'Guerrero' ){
         hability = 'Fuerza'
-    }else if( clase === 'Mago' ){
+    }else if( classCharacter === 'Mago' ){
         hability = 'Inteligencia'
-    }else if( clase === 'arquero' ){
+    }else if( classCharacter === 'Arquero' ){
         hability = 'Agilidad'
     }
     const habilitiesCharacter = prompt(`Tu personaje cuenta con 3 habilidades que son: fuerza, inteligencia y agilidad.
@@ -100,7 +98,7 @@ function askHabilities(habilities, clase){
         Te ayudará a resolver acertijos, poder expresarte mejor ante los demás.
 
     Ten en cuenta que solo tienes 11 puntos para distribuir y estará condicionado por tu clase.
-    Como ${clase} deberás darle prioridad a la ${hability} con un máximo de 6 puntos. No podrá haber una con menos de 2 puntos.
+    Como ${classCharacter} deberás darle prioridad a la ${hability} con un máximo de 6 puntos. No podrá haber una con menos de 2 puntos.
 
     Ingresa los puntajes como en el siguiente ejemplo:
 
@@ -108,21 +106,117 @@ function askHabilities(habilities, clase){
 
     El primer número será la fuerza, el segundo la inteligencia y el tercero la agilidad. Respeta ese orden.`, '6, 3, 2')
 
-    return habilitiesCharacter
+    const arrayHabilities = habilitiesCharacter.split(',')
+
+    if(pattern.test(arrayHabilities)){
+        arrNumHabilities = arrayHabilities.map(num => Number(num))
+    }else{
+        alert(`Recuerda que debes ingresar las habilidades con el patrón indicado`)
+        return askHabilities(classCharacter)
+    }
+
+    let total = arrNumHabilities.reduce( (a,b) => a + b, 0)
+    console.log(total);
+
+    if(total < 11){
+        console.log('recuerda que debes completar 11 puntos');
+        alert('recuerda que debes completar 11 puntos')
+        return askHabilities(classCharacter)
+    }else if(total > 11){
+        console.log('recuerda que solo tienes 11 puntos');
+        alert('recuerda que solo tienes 11 puntos')
+        return askHabilities(classCharacter)
+    }
+
+    if(classCharacter === 'Guerrero'){
+        if(arrNumHabilities[0] > arrNumHabilities[1] && arrNumHabilities[0] > arrNumHabilities[2]){
+            strength = arrNumHabilities[0]
+            intelligence = arrNumHabilities[1]
+            agility = arrNumHabilities[2]
+        }else{
+            alert(`Recuerda que para los ${classCharacter} su habilidad principal es ${hability}`)
+            return askHabilities(classCharacter)
+        }
+    }else if(classCharacter === 'Mago'){
+        if(arrNumHabilities[1] > arrNumHabilities[0] && arrNumHabilities[1] > arrNumHabilities[2]){
+            strength = arrNumHabilities[0]
+            intelligence = arrNumHabilities[1]
+            agility = arrNumHabilities[2]
+        }else{
+            alert(`Recuerda que para los ${classCharacter} su habilidad principal es ${hability}`)
+            return askHabilities(classCharacter)
+        }
+    }else if(classCharacter === 'Arquero'){
+        if(arrNumHabilities[1] > arrNumHabilities[0] && arrNumHabilities[1] > arrNumHabilities[2]){
+            strength = arrNumHabilities[0]
+            intelligence = arrNumHabilities[1]
+            agility = arrNumHabilities[2]
+        }else{
+            alert(`Recuerda que para los ${classCharacter} su habilidad principal es ${hability}`)
+            return askHabilities(classCharacter)
+        }
+    }
+    character.habilities.strength = strength;
+    character.habilities.intelligence = intelligence;
+    character.habilities.agility = agility;
 }
 
-function crearPersonaje(){
+function askConfirm(arma){
+    const confirm = prompt(`Este es tu personaje:
 
-    character.name = askName(),
-    character.class = askProperties(raceCharacter),
-    character.race = askProperties(classCharacter),
-    character.weapon = askWeapon(character.race),
-    character.description = askDescription(),
-    character.habilities = askHabilities(character.habilities, character.race),
+    Nombre = ${character.name}
+    Clase = ${character.class}
+    Raza = ${character.race}
+    ${arma} = ${character.weapon}
+    Habilidades:
+        Fuerza = ${character.habilities.strength}
+        Inteligencia = ${character.habilities.intelligence}
+        Agilidad = ${character.habilities.agility}
+    Descripción = ${character.description}
+
+    ¿Estás de acuerdo?
+    Si la respuesta es sí, escribe "empezar" sino, escribe el nombre de la propiedad que deseas cambiar  sin acentos (Ej: Descripcion).
+
+    Nota: Si quieres cambiar una habilidad en específico escribe "Habilidades" y las re-asignas de nuevo.
+    Nota: El ${arma} es acorde a la clase que escojas.
+     `).toLocaleLowerCase()
+
+     if(confirm === "empezar"){
+        return alert('Acá va la función que empieza la historia');
+    }else if(confirm === "nombre"){
+        return (character.name = askName(), confirm = askConfirm(arma))
+    }else if(confirm === "clase"){
+        return (character.class = askProperties(raceCharacter), confirm = askConfirm(arma))
+    }else if(confirm === 'raza'){
+        return (character.race = askProperties(classCharacter), confirm = askConfirm(arma))
+    }else if(confirm === 'descripcion'){
+        return (character.description = askDescription(), confirm = askConfirm(arma))
+    }else if(confirm === 'habilidades'){
+        return (askHabilities( character.class), confirm = askConfirm(arma))
+    }else{
+        return (alert('Escribe un valor válido para poder continuar'), confirm = askConfirm(arma))
+    }
+    }
+
+    function crearPersonaje(){
+    character.name = askName()
+    character.race = askProperties(raceCharacter)
+    character.class = askProperties(classCharacter)
+    character.weapon = weaponCharacter[character.class]
+    character.description = askDescription()
+    askHabilities( character.class)
+
+    let arma = ''
+    if(character.race !== 'Mago'){
+        arma = 'Arma'
+    }else{
+        arma = 'Poder'
+    }
+
+    const confirm = askConfirm(arma)
 
 
 
-    console.log(character);
 
 }
 
