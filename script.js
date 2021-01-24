@@ -210,7 +210,7 @@ function askConfirm(arma){
     if(character.race !== 'Mago'){
         arma = 'Arma'
     }else{
-        arma = 'Poders mágicos'
+        arma = 'Poders'
     }
 
     const confirm = askConfirm(arma)
