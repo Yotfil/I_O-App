@@ -96,7 +96,15 @@ function askHabilities( classCharacter ){
     let strength = 0;
     let intelligence = 0;
     let agility = 0;
+    let predetermined = ""
 
+    if(character.class === 'Guerrero'){
+        predetermined = '6, 3, 2'
+    }else if( character.class === 'Mago'){
+        predetermined = '2, 6, 3'
+    }else if( character.class === 'Arquero'){
+        predetermined = '3, 2, 6'
+    }
 
     const habilitiesCharacter = prompt(`Tu personaje cuenta con 3 habilidades que son: fuerza, inteligencia y agilidad.
 
@@ -114,9 +122,9 @@ function askHabilities( classCharacter ){
 
     Ingresa los puntajes como en el siguiente ejemplo:
 
-    "6, 3, 2"
+    "${predetermined}"
 
-    El primer número será la fuerza, el segundo la inteligencia y el tercero la agilidad. Respeta ese orden.`, '6, 3, 2')
+    El primer número será la fuerza, el segundo la inteligencia y el tercero la agilidad. Respeta ese orden.`, predetermined)
 
     const arrayHabilities = habilitiesCharacter.split(',')
 
@@ -286,18 +294,19 @@ function story(){
 }
 
 function confirmMission1(answer){
-    let answerMission1 = ""
+    let answerMission1;
 
     let negativeAnswer = `Nunca imaginé esto, nos has condenado ${character.name}
 
     Fin del juego`
 
     if(answer){
-        answerMission1 = alert(`Excelente ${character.name} la bendición de los dioses te acompañe. Eres nuestra esperanza. ¡Corre!`)
+        alert(`Excelente ${character.name} la bendición de los dioses te acompañe. Eres nuestra esperanza. ¡Corre!`)
+        answerMission1 = true
     }else{
         const secondOption = Number(prompt(`¿Qué quieres hacer?
-            (1) Pensarlo.
-            (2) Desertar
+        (1) Pensarlo.
+        (2) Desertar
         `))
         if(Number.isNaN(secondOption) || secondOption < 1 || secondOption >2){
             alert('Selecciona una respuesta valida')
@@ -307,19 +316,25 @@ function confirmMission1(answer){
 
             Si escoges no, desertarás automaticamente`)
             if(confirmSecondOption){
-                answerMission1 = alert(`Sabía que la fama que te precede no es falsa. ¡Corre! Busca a Friedrich `)
+                alert(`Sabía que la fama que te precede no es falsa. ¡Corre! Busca a Friedrich `)
+                answerMission1 = true
             }else{
-                answerMission1 = alert(negativeAnswer)
+                alert(negativeAnswer)
+                answerMission1 = false
             }
         }else if( secondOption === 2){
-            answerMission1 = alert(negativeAnswer)
+            alert(negativeAnswer)
+            answerMission1 = false
         }
     }
     return answerMission1
 }
 
 function mission1(answer){
-    console.log('this is answer', answer);
+
+    let time = new Intl.DateTimeFormat("en" , {timeStyle: "short" });
+    const getTime = time.format(Date.now());
+
     if(!answer){
         const startAgain = confirm(`¿Deseas empezar una nueva partida?`)
         if(startAgain){
@@ -329,7 +344,11 @@ function mission1(answer){
         }
     }
 
-    alert(`Sales corriendo de la sala del rey, quien se veía muy preocupado, tomas rumbo hacia la torre de los magos que logras divisar no muy lejos de allí`)
+    alert(`Sales corriendo de la sala del rey, quien se veía muy preocupado, tomas rumbo hacia la torre de los magos que logras divisar no muy lejos de allí
+
+    Son las ${getTime}
+    Tiempo restante
+    `)
 
 }
 
@@ -338,6 +357,7 @@ function startGame(){
     askConfirm()
     const storyVar = story()
     const confirmMission1Var = confirmMission1(storyVar)
+    console.log('this is confirmMission1Var', confirmMission1Var);
     const mission1var = mission1(confirmMission1Var)
 
     // const getCharacter = JSON.parse(localStorage.getItem('character'))
@@ -348,3 +368,4 @@ function startGame(){
     // }
 }
 startGame()
+
