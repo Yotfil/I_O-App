@@ -49,6 +49,17 @@ const habilityCharacter = {
     Arquero: 'Agilidad'
 }
 
+const storyOptions = {
+    options: {
+        1:'Mansión del terror',
+        2:'Catacumbas malditas',
+        3:'Dragón ermitaño',
+    },
+    message: `Escoge una de las siguientes historias para empezar tu partida
+    (1) Mansión del terror
+    (2) Catacumbas malditas
+    (3) Dragón ermitaño`
+}
 
 
 function askName(){
@@ -152,7 +163,7 @@ function askHabilities( classCharacter ){
             return askHabilities(classCharacter)
         }
     }else if(classCharacter === 'Arquero'){
-        if(arrNumHabilities[1] > arrNumHabilities[0] && arrNumHabilities[1] > arrNumHabilities[2]){
+        if(arrNumHabilities[2] > arrNumHabilities[0] && arrNumHabilities[2] > arrNumHabilities[1]){
             strength = arrNumHabilities[0]
             intelligence = arrNumHabilities[1]
             agility = arrNumHabilities[2]
@@ -166,9 +177,28 @@ function askHabilities( classCharacter ){
     character.habilities.agility = agility;
 }
 
-function askConfirm(arma){
+function chooseStory(){
+    const option = Number(prompt(storyOptions.message))
+    let answer = ""
+
+    if(Number.isNaN(option) || option < 1 || option > 3){
+        alert('No escogiste una opció valida')
+        return chooseStory()
+    }else{
+        answer = alert(`¡Buena elección! "${storyOptions.options[option]}" es una excelente historia para iniciar.
+
+        ¡Empecemos!
+        `)
+    }
+    return answer
+}
+
+function askConfirm(){
+
+    const arma = character.class === 'Mago' ? 'Poder' : 'Arma'
+
     const answer = {
-        empezar: () => alert('Acá va la función que empieza la historia'),
+        empezar: () => chooseStory(),
         nombre: () => {
             character.name = askName()
         },
@@ -215,17 +245,106 @@ function askConfirm(arma){
     if(callback !== 'empezar') askConfirm(arma)
 }
 
+function capitalize(word){
+    const capitalLetter = word.slice(0, 1).toUpperCase()
+    const remaining = word.slice(1)
+    return `${capitalLetter}${remaining}`
+}
+
+
 function crearPersonaje(){
-    character.name = askName()
+    character.name = capitalize(askName())
     character.race = askProperties(raceCharacter)
     character.class = askProperties(classCharacter)
     character.weapon = weaponCharacter[character.class]
     character.description = askDescription()
     askHabilities( character.class)
 
-    const arma = character.race === 'Mago' ? 'Poder' : 'Arma'
-
-    askConfirm(arma)
 }
 
-crearPersonaje()
+function saveGame(){
+
+    const characterToStorage = JSON.stringify(character)
+    console.log(characterToStorage);
+    localStorage.setItem('character', characterToStorage)
+}
+
+function story(){
+
+    let arma = character.class === 'Mago' ? 'tus grandiosos poderes' : 'tu grandiosa arma'
+
+    alert(
+        `Oh! Qué gusto es poder contar con tu ayuda, querido ${character.name}, tu nombre resuena a lo largo y ancho de este territorio, tus proesas son grandes y sin contar ${arma}.
+
+        Han sido tiempos dificiles, hemos estado bajo ataque, el reino del norte ha sido implacable, está invadiendo nuestros territorios, ya conquistó el reino del Este y el Oeste somos la última porción de esperanza.
+
+        Tengo una misión de calentamiento y cuando la termines te daré una lista de misiones a escoger. Tanto esta misión como posteriores tienen tiempo para ser llevadas a cabo, es por eso que debes ser preciso y constante.`
+    )
+    const missionDialogue = confirm(`Para iniciar, necesito que vayas a la torre de los magos, mi espada fue destruida en la última batalla. Busca a Friedrich y pídele que te dé un pergamino con el hechizo "Encantar Arma" lo usaremos sobre la espada que Liotar está forjando para mí, aunque jamas se igualaría a ${arma}. Tienes 12 horas una vez aceptes la misión para completarla ¿Estás listo para iniciar la misión?`)
+
+    return missionDialogue
+}
+
+function confirmMission1(answer){
+    let answerMission1 = ""
+
+    let negativeAnswer = `Nunca imaginé esto, nos has condenado ${character.name}
+
+    Fin del juego`
+
+    if(answer){
+        answerMission1 = alert(`Excelente ${character.name} la bendición de los dioses te acompañe. Eres nuestra esperanza. ¡Corre!`)
+    }else{
+        const secondOption = Number(prompt(`¿Qué quieres hacer?
+            (1) Pensarlo.
+            (2) Desertar
+        `))
+        if(Number.isNaN(secondOption) || secondOption < 1 || secondOption >2){
+            alert('Selecciona una respuesta valida')
+            return confirmMission1(answer)
+        }else if(secondOption === 1){
+            const confirmSecondOption = confirm(`Estamos bajo ataque ${character.name} entiéndelo! No hay tiempo de pensarlo, debes decidir ya!
+
+            Si escoges no, desertarás automaticamente`)
+            if(confirmSecondOption){
+                answerMission1 = alert(`Sabía que la fama que te precede no es falsa. ¡Corre! Busca a Friedrich `)
+            }else{
+                answerMission1 = alert(negativeAnswer)
+            }
+        }else if( secondOption === 2){
+            answerMission1 = alert(negativeAnswer)
+        }
+    }
+    return answerMission1
+}
+
+function mission1(answer){
+    console.log('this is answer', answer);
+    if(!answer){
+        const startAgain = confirm(`¿Deseas empezar una nueva partida?`)
+        if(startAgain){
+            startGame()
+        }else{
+            alert(`¡Adíos!`)
+        }
+    }
+
+    alert(`Sales corriendo de la sala del rey, quien se veía muy preocupado, tomas rumbo hacia la torre de los magos que logras divisar no muy lejos de allí`)
+
+}
+
+function startGame(){
+    crearPersonaje()
+    askConfirm()
+    const storyVar = story()
+    const confirmMission1Var = confirmMission1(storyVar)
+    const mission1var = mission1(confirmMission1Var)
+
+    // const getCharacter = JSON.parse(localStorage.getItem('character'))
+    // if(!getCharacter){
+    //     saveGame()
+    // }else{
+    //     confirm('Hay una partida guardada ¿quieres continuarla?')
+    // }
+}
+startGame()
